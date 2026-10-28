@@ -1,0 +1,7 @@
+FROM ./models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf
+PARAMETER num_ctx 2048
+PARAMETER temperature 0.1
+PARAMETER num_gpu 0
+PARAMETER num_predict 512
+PARAMETER stop <|im_end|>
+PARAMETER stop <|endoftext|>

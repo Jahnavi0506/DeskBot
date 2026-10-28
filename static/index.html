@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>DRL Coding Agent | Local AI Developer</title>
+  <link rel="stylesheet" href="/static/app.css?v=5.0.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1>DRL Coding Agent</h1>
+          <span class="badge-sub">Autonomous Local AI Assistant</span>
+        </div>
+      </div>
+      <div class="nav-controls">
+        <div class="status-chip" id="ollama-status-chip">
+          <span class="status-dot online"></span>
+          <span id="model-status-text">Ollama: drl-coder</span>
+        </div>
+        <div class="desktop-chip" id="desktop-path-chip" title="Active Storage Directory">
+          <span class="icon">🖥️</span>
+          <span id="desktop-path-text">Desktop</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-unload" title="Unload model from RAM to free system memory">
+          ❄️ Unload Model
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      <!-- Left Sidebar: Task Input & Presets -->
+      <aside class="sidebar">
+        <div class="card prompt-card">
+          <div class="card-header-mini">
+            <label class="section-label" for="prompt-input">Task Instruction</label>
+            <span class="keyboard-hint">Ctrl + Enter to run</span>
+          </div>
+          <textarea id="prompt-input" rows="6" placeholder="Describe what you want the agent to do...&#10;&#10;Examples:&#10;• Write DFS algorithm, run it, save dfs_op.txt, and email both files&#10;• Create a Word document (.docx) on AI advantages and disadvantages&#10;• Create a PDF report on Robotics path planning&#10;• Send an email to someone with specific details"></textarea>
+          
+          <div class="action-row">
+            <button class="btn btn-primary" id="btn-run-agent">
+              <span class="icon">🚀</span> Run Task
+            </button>
+            <button class="btn btn-ghost" id="btn-clear-prompt" title="Clear instruction">Clear</button>
+          </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="presets-section">
+          <div class="presets-header">
+            <span class="presets-title">Quick Task Presets</span>
+          </div>
+          <div class="preset-chips">
+            <button class="chip" data-prompt="write a python code for finding path using dfs algorithm and name it as dfs.py and run the code and save the output as dfs_op.txt and send both files dfs.py and dfs_op.txt to your_email@gmail.com">
+              <span class="chip-icon">🐍</span>
+              <div class="chip-text">
+                <strong>DFS Algorithm + Run + Email</strong>
+                <span>Writes dfs.py, executes, saves output, emails results</span>
+              </div>
+            </button>
+
+            <button class="chip" data-prompt="write python code for Path planning of robot using Breadth First Search algorithm and name it as bfs.py and run the code and name the output file as bfs_op.txt and send both files to your_email@gmail.com">
+              <span class="chip-icon">🤖</span>
+              <div class="chip-text">
+                <strong>BFS Path Planning + Run + Email</strong>
+                <span>BFS robot search with complete output dispatch</span>
+              </div>
+            </button>
+
+            <button class="chip" data-prompt="create a Word document (.docx) named ai_overview.docx on Desktop containing definition, advantages, and disadvantages of artificial intelligence">
+              <span class="chip-icon">📄</span>
+              <div class="chip-text">
+                <strong>Create Word Document (.docx)</strong>
+                <span>Generates structured .docx file on Desktop</span>
+              </div>
+            </button>
+
+            <button class="chip" data-prompt="create a PDF document named ml_report.pdf on Desktop containing a comprehensive summary of machine learning types and applications">
+              <span class="chip-icon">📑</span>
+              <div class="chip-text">
+                <strong>Create PDF Report (.pdf)</strong>
+                <span>Generates styled PDF document on Desktop</span>
+              </div>
+            </button>
+
+            <button class="chip" data-prompt="send a mail to professor@university.edu requesting a leave from tomorrow for 2 days due to personal reasons with proper formal subject and body">
+              <span class="chip-icon">✉️</span>
+              <div class="chip-text">
+                <strong>Send Leave Request Email</strong>
+                <span>Sends formal leave application directly</span>
+              </div>
+            </button>
+
+            <button class="chip" data-prompt="find files matrices.py and mat_op.txt present in desktop and send them to mail your_email@gmail.com">
+              <span class="chip-icon">📎</span>
+              <div class="chip-text">
+                <strong>Find & Email Existing Files</strong>
+                <span>Sends matrices.py and mat_op.txt from Desktop</span>
+              </div>
+            </button>
+
+            <button class="chip" data-prompt="connect to remote pc 192.168.137.xxx with pin xxxx, find test.txt and send to your_email@gmail.com">
+              <span class="chip-icon">🌐</span>
+              <div class="chip-text">
+                <strong>Remote Laptop File Transfer</strong>
+                <span>Fetches file from Laptop 2 and emails it</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Desktop Files Explorer -->
+        <section class="files-panel">
+          <div class="panel-header">
+            <span class="panel-title">Generated & Desktop Files</span>
+            <button class="btn-icon" id="btn-refresh-files" title="Refresh files list">🔄</button>
+          </div>
+          <div class="files-list" id="desktop-files-list">
+            <div class="empty-state">Loading files...</div>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Right Panel: Live Execution Feed & Inspector -->
+      <section class="main-content">
+        <!-- Top Card: Agent Execution Stream -->
+        <div class="execution-card">
+          <div class="card-header">
+            <div class="header-left">
+              <h2>Agent Execution Stream</h2>
+              <span class="step-badge" id="step-indicator">Idle</span>
+              <span class="step-count-badge" id="step-count-badge" style="display: none;">0 steps</span>
+            </div>
+            <div class="header-actions">
+              <label class="auto-scroll-toggle" title="Keep stream scrolled to latest step">
+                <input type="checkbox" id="auto-scroll-chk" checked>
+                <span>Auto-scroll</span>
+              </label>
+              <button class="btn btn-ghost btn-sm" id="btn-clear-feed">Clear Stream</button>
+            </div>
+          </div>
+
+          <!-- Feed Container with explicit custom scrollbar -->
+          <div class="feed-container" id="feed-container">
+            <div class="welcome-banner">
+              <div class="welcome-icon">✨</div>
+              <h3>Ready to assist you</h3>
+              <p>Type a task instruction or select a preset on the left. The agent can write & execute Python code, create Word & PDF documents, manage files, and send emails autonomously.</p>
+              <div class="capability-tags">
+                <span class="tag">🐍 Python Execution</span>
+                <span class="tag">📄 Word (.docx)</span>
+                <span class="tag">📑 PDF Generation</span>
+                <span class="tag">📧 Email Dispatch</span>
+                <span class="tag">⚡ Auto-Recovery</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Card: Output Inspector & File Viewer -->
+        <div class="inspector-card">
+          <div class="inspector-tabs">
+            <button class="itab-btn active" data-itab="output-view">
+              <span class="tab-icon">🖥️</span> Terminal Output
+            </button>
+            <button class="itab-btn" data-itab="code-view">
+              <span class="tab-icon">📝</span> File Preview
+            </button>
+            <button class="itab-btn" data-itab="summary-view">
+              <span class="tab-icon">📋</span> Task Summary
+            </button>
+            <div class="inspector-actions">
+              <button class="btn btn-ghost btn-sm" id="btn-copy-output">📋 Copy</button>
+            </div>
+          </div>
+
+          <div class="inspector-body">
+            <!-- Terminal Output Tab -->
+            <div class="itab-content active" id="output-view">
+              <pre class="terminal-output" id="terminal-content">Waiting for task execution...</pre>
+            </div>
+
+            <!-- File Preview Tab -->
+            <div class="itab-content" id="code-view">
+              <div class="code-header">
+                <span id="preview-filename">No file selected</span>
+              </div>
+              <pre class="code-preview" id="code-content">Select a file from the Desktop Files list on the left to preview its content.</pre>
+            </div>
+
+            <!-- Task Summary Tab -->
+            <div class="itab-content" id="summary-view">
+              <div class="summary-box" id="summary-content">No completed tasks yet.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js?v=5.0.0"></script>
+</body>
+</html>
